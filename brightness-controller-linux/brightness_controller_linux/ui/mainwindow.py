@@ -23,9 +23,9 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(701, 340)
-        MainWindow.setMinimumSize(QSize(701, 340))
-        MainWindow.setMaximumSize(QSize(701, 340))
+        MainWindow.resize(1000, 380)
+        MainWindow.setMinimumSize(QSize(1000, 380))
+        MainWindow.setMaximumSize(QSize(1000, 380))
         MainWindow.setDocumentMode(True)
         self.actionExit = QAction(MainWindow)
         self.actionExit.setObjectName(u"actionExit")
@@ -53,7 +53,7 @@ class Ui_MainWindow(object):
         self.centralWidget.setObjectName(u"centralWidget")
         self.horizontalLayoutWidget = QWidget(self.centralWidget)
         self.horizontalLayoutWidget.setObjectName(u"horizontalLayoutWidget")
-        self.horizontalLayoutWidget.setGeometry(QRect(10, 0, 511, 261))
+        self.horizontalLayoutWidget.setGeometry(QRect(10, 0, 781, 261))
         self.horizontalLayout = QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setSpacing(6)
         self.horizontalLayout.setContentsMargins(11, 11, 11, 11)
@@ -142,6 +142,48 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.groupBox)
 
+        self.groupBox_3 = QGroupBox(self.horizontalLayoutWidget)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        self.horizontalLayoutWidget_4 = QWidget(self.groupBox_3)
+        self.horizontalLayoutWidget_4.setObjectName(u"horizontalLayoutWidget_4")
+        self.horizontalLayoutWidget_4.setGeometry(QRect(20, 40, 231, 211))
+        self.horizontalLayout_4 = QHBoxLayout(self.horizontalLayoutWidget_4)
+        self.horizontalLayout_4.setSpacing(6)
+        self.horizontalLayout_4.setContentsMargins(11, 11, 11, 11)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.tertiary_brightness = QSlider(self.horizontalLayoutWidget_4)
+        self.tertiary_brightness.setObjectName(u"tertiary_brightness")
+        self.tertiary_brightness.setValue(99)
+        self.tertiary_brightness.setOrientation(Qt.Vertical)
+
+        self.horizontalLayout_4.addWidget(self.tertiary_brightness)
+
+        self.tertiary_red = QSlider(self.horizontalLayoutWidget_4)
+        self.tertiary_red.setObjectName(u"tertiary_red")
+        self.tertiary_red.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tertiary_red.setValue(99)
+        self.tertiary_red.setOrientation(Qt.Vertical)
+
+        self.horizontalLayout_4.addWidget(self.tertiary_red)
+
+        self.tertiary_green = QSlider(self.horizontalLayoutWidget_4)
+        self.tertiary_green.setObjectName(u"tertiary_green")
+        self.tertiary_green.setValue(99)
+        self.tertiary_green.setOrientation(Qt.Vertical)
+
+        self.horizontalLayout_4.addWidget(self.tertiary_green)
+
+        self.tertiary_blue = QSlider(self.horizontalLayoutWidget_4)
+        self.tertiary_blue.setObjectName(u"tertiary_blue")
+        self.tertiary_blue.setValue(99)
+        self.tertiary_blue.setOrientation(Qt.Vertical)
+
+        self.horizontalLayout_4.addWidget(self.tertiary_blue)
+
+
+        self.horizontalLayout.addWidget(self.groupBox_3)
+
         self.label = QLabel(self.centralWidget)
         self.label.setObjectName(u"label")
         self.label.setGeometry(QRect(20, 260, 71, 16))
@@ -166,9 +208,21 @@ class Ui_MainWindow(object):
         self.label_8 = QLabel(self.centralWidget)
         self.label_8.setObjectName(u"label_8")
         self.label_8.setGeometry(QRect(470, 260, 16, 16))
+        self.label_13 = QLabel(self.centralWidget)
+        self.label_13.setObjectName(u"label_13")
+        self.label_13.setGeometry(QRect(560, 260, 71, 16))
+        self.label_14 = QLabel(self.centralWidget)
+        self.label_14.setObjectName(u"label_14")
+        self.label_14.setGeometry(QRect(640, 260, 21, 16))
+        self.label_15 = QLabel(self.centralWidget)
+        self.label_15.setObjectName(u"label_15")
+        self.label_15.setGeometry(QRect(690, 260, 21, 16))
+        self.label_16 = QLabel(self.centralWidget)
+        self.label_16.setObjectName(u"label_16")
+        self.label_16.setGeometry(QRect(740, 260, 16, 16))
         self.verticalLayoutWidget = QWidget(self.centralWidget)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(529, 0, 218, 258))
+        self.verticalLayoutWidget.setGeometry(QRect(799, 0, 191, 310))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setSpacing(6)
         self.verticalLayout.setContentsMargins(11, 11, 11, 11)
@@ -212,6 +266,17 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.secondary_combo)
 
+        self.label_17 = QLabel(self.verticalLayoutWidget)
+        self.label_17.setObjectName(u"label_17")
+
+        self.verticalLayout.addWidget(self.label_17)
+
+        self.tertiary_combo = QComboBox(self.verticalLayoutWidget)
+        self.tertiary_combo.setObjectName(u"tertiary_combo")
+        self.tertiary_combo.setMaximumSize(QSize(150, 28))
+
+        self.verticalLayout.addWidget(self.tertiary_combo)
+
         self.label_10 = QLabel(self.verticalLayoutWidget)
         self.label_10.setObjectName(u"label_10")
 
@@ -254,7 +319,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusBar)
         self.menuBar = QMenuBar(MainWindow)
         self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 701, 32))
+        self.menuBar.setGeometry(QRect(0, 0, 1000, 32))
         self.menuFile = QMenu(self.menuBar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuHelp = QMenu(self.menuBar)
@@ -292,6 +357,7 @@ class Ui_MainWindow(object):
         self.actionClearDefault.setText(QCoreApplication.translate("MainWindow", u"&Clear default settings", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Primary", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Secondary", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"Tertiary", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Brightness", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u" R", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u" G", None))
@@ -300,11 +366,19 @@ class Ui_MainWindow(object):
         self.label_6.setText(QCoreApplication.translate("MainWindow", u" R", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u" G", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u" B", None))
+        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Brightness", None))
+        self.label_14.setText(QCoreApplication.translate("MainWindow", u" R", None))
+        self.label_15.setText(QCoreApplication.translate("MainWindow", u" G", None))
+        self.label_16.setText(QCoreApplication.translate("MainWindow", u" B", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Advanced", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"Primary Brightness", None))
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"Secondary Brightness", None))
 #if QT_CONFIG(tooltip)
         self.secondary_combo.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>You can select the source of Secondary Brightness Here.</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_17.setText(QCoreApplication.translate("MainWindow", u"Tertiary Brightness", None))
+#if QT_CONFIG(tooltip)
+        self.tertiary_combo.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>You can select the source of Tertiary Brightness Here.</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.label_10.setText(QCoreApplication.translate("MainWindow", u"Color Temperature", None))
         self.comboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"Default", None))

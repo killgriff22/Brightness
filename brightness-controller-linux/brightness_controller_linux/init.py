@@ -56,6 +56,8 @@ class MyApplication(QtWidgets.QMainWindow):
         elif self.no_of_displays >= 2:
             self.display1 = self.displays[0]
             self.display2 = self.displays[1]
+            if self.no_of_displays >= 3:
+                self.display3 = self.displays[2]
 
     def directlySetMaxBrightness(self, displayNum, percentage):
 
@@ -118,6 +120,7 @@ class MyApplication(QtWidgets.QMainWindow):
         self.tray_icon = None
         self.display1 = None
         self.display2 = None
+        self.display3 = None
         self.license_widget = None
         self.about_widget = None
         self.help_widget = None
@@ -275,17 +278,27 @@ class MyApplication(QtWidgets.QMainWindow):
             self.ui.secondary_combo.setEnabled(False)
             self.ui.primary_combobox.addItem("Disabled")
             self.ui.primary_combobox.setEnabled(False)
+            self.ui.tertiary_combo.addItem("Disabled")
+            self.ui.tertiary_combo.setEnabled(False)
             return
+
+        if self.no_of_connected_dev < 3:
+            self.ui.tertiary_combo.addItem("Disabled")
+            self.ui.tertiary_combo.setEnabled(False)
 
         if self.ddcutil_Installed:
             for i in range(self.no_of_connected_dev):
                 self.ui.secondary_combo.addItem(self.displayNames[i])
                 self.ui.primary_combobox.addItem(self.displayNames[i])
+                if self.no_of_connected_dev >= 3:
+                    self.ui.tertiary_combo.addItem(self.displayNames[i])
             pass
         else:
             for display in self.displays:
                 self.ui.secondary_combo.addItem(display)
                 self.ui.primary_combobox.addItem(display)
+                if self.no_of_connected_dev >= 3:
+                    self.ui.tertiary_combo.addItem(display)
 
     def connect_handlers(self):
         """Connects the handlers of GUI widgets"""
@@ -306,6 +319,12 @@ class MyApplication(QtWidgets.QMainWindow):
             self.connect_secondary_widgets()
             self.ui.secondary_combo.setCurrentIndex(1)
 
+        self.enable_tertiary_widgets(False)
+        if self.no_of_connected_dev >= 3:
+            self.enable_tertiary_widgets(True)
+            self.connect_tertiary_widgets()
+            self.ui.tertiary_combo.setCurrentIndex(2)
+
         if path.exists(self.default_config):
             self.ui.actionClearDefault.setVisible(True)
             self.ui.actionClearDefault.triggered.connect(
@@ -319,6 +338,8 @@ class MyApplication(QtWidgets.QMainWindow):
             str].connect(self.primary_source_combo_activated)
         self.ui.secondary_combo.activated[
             str].connect(self.secondary_source_combo_activated)
+        self.ui.tertiary_combo.activated[
+            str].connect(self.tertiary_source_combo_activated)
         self.ui.actionAbout.triggered.connect(self.show_about)
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionHelp.triggered.connect(self.show_help)
@@ -349,6 +370,16 @@ class MyApplication(QtWidgets.QMainWindow):
                 if self.ui.secondary_combo.currentText() == "Invalid display":
                     self.ui.secondary_brightness.setEnabled(False)
 
+            if self.no_of_displays > 2:
+                self.ui.tertiary_brightness.setMaximum(100)
+                self.ui.tertiary_brightness.setValue(int(round(
+                    (self.displayValues[2] / self.displayMaxes[2]) * 100)))
+                self.ui.tertiary_brightness.setFocusPolicy(Qt.NoFocus)
+                self.ui.tertiary_brightness.setTracking(False)
+
+                if self.ui.tertiary_combo.currentText() == "Invalid display":
+                    self.ui.tertiary_brightness.setEnabled(False)
+
         else:
             self.ui.primary_brightness.setMaximum(99)
             self.ui.secondary_brightness.setMaximum(99)
@@ -358,12 +389,18 @@ class MyApplication(QtWidgets.QMainWindow):
             self.ui.primary_brightness.setTracking(True)
             self.ui.secondary_brightness.setFocusPolicy(Qt.StrongFocus)
             self.ui.secondary_brightness.setTracking(True)
+            self.ui.tertiary_brightness.setMaximum(99)
+            self.ui.tertiary_brightness.setValue(99)
+            self.ui.tertiary_brightness.setFocusPolicy(Qt.StrongFocus)
+            self.ui.tertiary_brightness.setTracking(True)
 
             if self.no_of_displays == 1:
                 self.ui.primary_brightness.setEnabled(True)
             else:
                 self.ui.primary_brightness.setEnabled(True)
                 self.ui.secondary_brightness.setEnabled(True)
+                if self.no_of_displays > 2:
+                    self.ui.tertiary_brightness.setEnabled(True)
 
     def enable_secondary_widgets(self, boolean):
         """
@@ -387,6 +424,77 @@ class MyApplication(QtWidgets.QMainWindow):
             connect(self.change_value_sb)
         self.ui.secondary_green.valueChanged[int]. \
             connect(self.change_value_sg)
+
+    def enable_tertiary_widgets(self, boolean):
+        """
+        boolean - assigns boolean value to setEnabled(boolean)
+        """
+        self.ui.tertiary_brightness.setEnabled(boolean)
+        self.ui.tertiary_blue.setEnabled(boolean)
+        self.ui.tertiary_red.setEnabled(boolean)
+        self.ui.tertiary_green.setEnabled(boolean)
+
+    def connect_tertiary_widgets(self):
+        """
+        connects the tertiary widgets with functions
+        """
+        self.ui.tertiary_brightness.setTracking(False)
+        self.ui.tertiary_brightness.valueChanged[int]. \
+            connect(self.change_value_tbr)
+        self.ui.tertiary_red.valueChanged[int]. \
+            connect(self.change_value_tr)
+        self.ui.tertiary_blue.valueChanged[int]. \
+            connect(self.change_value_tb)
+        self.ui.tertiary_green.valueChanged[int]. \
+            connect(self.change_value_tg)
+
+    def _apply_tertiary_xrandr(self, brightness, red, green, blue):
+        """Runs xrandr for the tertiary display with the given slider values"""
+        cmd_value = "xrandr --output %s --brightness %s --gamma %s:%s:%s" % \
+                    (self.display3,
+                     self.values[brightness],
+                     self.values[red],
+                     self.values[green],
+                     self.values[blue])
+        Executor.execute_command(cmd_value)
+
+    def change_value_tbr(self):
+        """Changes Tertiary Display Brightness"""
+        if self.ui.directControlBox.isChecked():
+            index = self.ui.tertiary_combo.currentIndex()
+            setValue = threading.Thread(target=self.directlySetMaxBrightness,
+                                        args=(index + 1,
+                                              self.ui.tertiary_brightness.value()))
+            setValue.start()
+            self.displayValues[index] = int(round(
+                self.ui.tertiary_brightness.value() / 100 *
+                self.displayMaxes[index]))
+        else:
+            self._apply_tertiary_xrandr(self.ui.tertiary_brightness.value() - 1,
+                                        self.ui.tertiary_red.value(),
+                                        self.ui.tertiary_green.value(),
+                                        self.ui.tertiary_blue.value())
+
+    def change_value_tr(self, value):
+        """Changes Tertiary Display Red ratio"""
+        self._apply_tertiary_xrandr(self.ui.tertiary_brightness.value() - 1,
+                                    value,
+                                    self.ui.tertiary_green.value(),
+                                    self.ui.tertiary_blue.value())
+
+    def change_value_tg(self, value):
+        """Changes Tertiary Display Green ratio"""
+        self._apply_tertiary_xrandr(self.ui.tertiary_brightness.value() - 1,
+                                    self.ui.tertiary_red.value(),
+                                    value,
+                                    self.ui.tertiary_blue.value())
+
+    def change_value_tb(self, value):
+        """Changes Tertiary Display Blue ratio"""
+        self._apply_tertiary_xrandr(self.ui.tertiary_brightness.value() - 1,
+                                    self.ui.tertiary_red.value(),
+                                    self.ui.tertiary_green.value(),
+                                    value)
 
     def change_value_pbr(self):
         """Changes Primary Display Brightness"""
@@ -557,6 +665,19 @@ class MyApplication(QtWidgets.QMainWindow):
         else:
             self.ui.secondary_brightness.setEnabled(True)
 
+    def tertiary_source_combo_activated(self, text):
+        """
+        assigns combo value to display
+        """
+        self.display3 = self.displays[
+            self.ui.tertiary_combo.currentIndex()]
+        print(self.ui.tertiary_combo.currentText())
+        if self.ui.directControlBox.isChecked() and \
+                self.ui.tertiary_combo.currentText() == "Invalid display":
+            self.ui.tertiary_brightness.setEnabled(False)
+        else:
+            self.ui.tertiary_brightness.setEnabled(True)
+
     def primary_source_combo_activated(self, text):
         """assigns combo value to display"""
         self.display1 = self.displays[
@@ -581,52 +702,72 @@ class MyApplication(QtWidgets.QMainWindow):
             self.change_primary_sliders(rgb)
             if self.no_of_connected_dev >= 2:
                 self.change_secondary_sliders(rgb)
+            if self.no_of_connected_dev >= 3:
+                self.change_tertiary_sliders(rgb)
 
         elif text == '1900K Candle':
             rgb = [255, 147, 41]
             self.change_primary_sliders(rgb)
             if self.no_of_connected_dev >= 2:
                 self.change_secondary_sliders(rgb)
+            if self.no_of_connected_dev >= 3:
+                self.change_tertiary_sliders(rgb)
         elif text == '2600K 40W Tungsten':
             rgb = [255, 197, 143]
             self.change_primary_sliders(rgb)
             if self.no_of_connected_dev >= 2:
                 self.change_secondary_sliders(rgb)
+            if self.no_of_connected_dev >= 3:
+                self.change_tertiary_sliders(rgb)
         elif text == '2850K 100W Tungsten':
             rgb = [255, 214, 170]
             self.change_primary_sliders(rgb)
             if self.no_of_connected_dev >= 2:
                 self.change_secondary_sliders(rgb)
+            if self.no_of_connected_dev >= 3:
+                self.change_tertiary_sliders(rgb)
         elif text == '3200K Halogen':
             rgb = [255, 241, 224]
             self.change_primary_sliders(rgb)
             if self.no_of_connected_dev >= 2:
                 self.change_secondary_sliders(rgb)
+            if self.no_of_connected_dev >= 3:
+                self.change_tertiary_sliders(rgb)
         elif text == '5200K Carbon Arc':
             rgb = [255, 250, 244]
             self.change_primary_sliders(rgb)
             if self.no_of_connected_dev >= 2:
                 self.change_secondary_sliders(rgb)
+            if self.no_of_connected_dev >= 3:
+                self.change_tertiary_sliders(rgb)
         elif text == '5400K High Noon':
             rgb = [255, 255, 251]
             self.change_primary_sliders(rgb)
             if self.no_of_connected_dev >= 2:
                 self.change_secondary_sliders(rgb)
+            if self.no_of_connected_dev >= 3:
+                self.change_tertiary_sliders(rgb)
         elif text == '6000K Direct Sun':
             rgb = [255, 255, 255]
             self.change_primary_sliders(rgb)
             if self.no_of_connected_dev >= 2:
                 self.change_secondary_sliders(rgb)
+            if self.no_of_connected_dev >= 3:
+                self.change_tertiary_sliders(rgb)
         elif text == '7000K Overcast Sky':
             rgb = [201, 226, 255]
             self.change_primary_sliders(rgb)
             if self.no_of_connected_dev >= 2:
                 self.change_secondary_sliders(rgb)
+            if self.no_of_connected_dev >= 3:
+                self.change_tertiary_sliders(rgb)
         elif text == '20000K Clear Blue Sky':
             rgb = [64, 156, 255]
             self.change_primary_sliders(rgb)
             if self.no_of_connected_dev >= 2:
                 self.change_secondary_sliders(rgb)
+            if self.no_of_connected_dev >= 3:
+                self.change_tertiary_sliders(rgb)
 
     def change_primary_sliders(self, rgb):
         """
@@ -654,6 +795,16 @@ class MyApplication(QtWidgets.QMainWindow):
         self.ui.secondary_red.setValue(slider_r)
         self.ui.secondary_green.setValue(slider_g)
         self.ui.secondary_blue.setValue(slider_b)
+
+    def change_tertiary_sliders(self, rgb):
+        """
+        rgb - based on the rgb array, assign values to
+        tertiary display sliders and in turn changes tertiary display color
+        rgb is given in array from a range of 0 to 255
+        """
+        self.ui.tertiary_red.setValue(int((rgb[0] * 100) / 255))
+        self.ui.tertiary_green.setValue(int((rgb[1] * 100) / 255))
+        self.ui.tertiary_blue.setValue(int((rgb[2] * 100) / 255))
 
     def change_secondary_sliders_in_rgb_0_99(self, br_rgb):
         """
